@@ -1,6 +1,8 @@
 import { nanoid } from 'nanoid';
 
-import { useEffect, useState, useRef, useCallback } from 'react';
+import { useState, useCallback } from 'react';
+import { useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 
 import styles from './phone-book.module.css';
 
@@ -8,25 +10,14 @@ import PhoneBookForm from './PhoneBookForm/PhoneBookForm';
 import Filter from './Contacts/Filter/Filter';
 import Contacts from './Contacts/Contacts';
 
+import { addContact, deleteContact } from '../../redux/actions';
+
 const PhoneBook = () => {
-  const [contacts, setContacts] = useState(() => {
-    const data = JSON.parse(localStorage.getItem('contacts'));
+  const contacts = useSelector(store => store.contacts);
+  const dispatch = useDispatch();
+  console.log(contacts);
 
-    return data || [];
-  });
   const [filter, setFilter] = useState('');
-
-  const firstRender = useRef(true);
-
-  useEffect(() => {
-    if (!firstRender.current) {
-      localStorage.setItem('contacts', JSON.stringify(contacts));
-    }
-  }, [contacts]);
-
-  useEffect(() => {
-    firstRender.current = false;
-  }, []);
 
   const isDublicate = ({ name, phone }) => {
     const normalizedName = name.toLowerCase();
@@ -45,7 +36,7 @@ const PhoneBook = () => {
     return !!dublicate;
   };
 
-  const addСontact = data => {
+  const onAddСontact = data => {
     // data - state форми
 
     if (isDublicate(data)) {
@@ -54,19 +45,14 @@ const PhoneBook = () => {
       );
     }
 
-    setContacts(prevContacts => {
-      const newContact = {
-        id: nanoid(),
-        ...data,
-      };
-
-      return [...prevContacts, newContact];
-    });
+    const action = addContact(data);
+    dispatch(action);
   };
-  const deleteСontact = useCallback(id => {
-    setContacts(prevContacts => prevContacts.filter(item => item.id !== id));
-  }, []);
 
+  const onDeleteСontact = id => {
+    dispatch(deleteContact(id));
+  };
+  /*
   const changeFilter = useCallback(({ target }) => setFilter(target.value), []);
 
   const getFilteredContacts = () => {
@@ -89,132 +75,17 @@ const PhoneBook = () => {
   };
 
   const items = getFilteredContacts();
-
+*/
   return (
     <div className={styles.wrapper}>
       <h2>Phonebook</h2>
-      <PhoneBookForm onSubmit={addСontact} />
+      <PhoneBookForm onSubmit={onAddСontact} />
       <h2>Contacts</h2>
-      <Filter changeFilter={changeFilter} />
-      <Contacts items={items} deleteContact={deleteСontact} />
+      <Filter />
+
+      <Contacts items={contacts} deleteContact={onDeleteСontact} />
     </div>
   );
 };
-
-/*
-class PhoneBook extends Component {
-  state = {
-    contacts: [],
-    filter: '',
-  };
-
-  componentDidMount() {
-    const contacts = JSON.parse(localStorage.getItem('contacts'));
-    if (contacts?.length) {
-      this.setState({
-        contacts,
-      });
-    }
-  }
-
-  componentDidUpdate(perevProps, prevState) {
-    const { contacts } = this.state;
-    if (prevState.contacts.length !== contacts.length) {
-      localStorage.setItem('contacts', JSON.stringify(this.state.contacts));
-    }
-  }
-
-  isDublicate({ name, phone }) {
-    const normalizedName = name.toLowerCase();
-    const normalizedPhone = phone.toLowerCase();
-
-    const { contacts } = this.state;
-
-    const dublicate = contacts.find(item => {
-      const normalizedCurrentName = item.name.toLowerCase();
-      const normalizedCurrentPhone = item.phone.toLowerCase();
-
-      return (
-        normalizedCurrentName === normalizedName ||
-        normalizedCurrentPhone === normalizedPhone
-      );
-    });
-
-    return !!dublicate;
-  }
-
-  addСontact = data => {
-    // data - state форми
-
-    if (this.isDublicate(data)) {
-      return alert(
-        `Contact with this ${data.name || data.phone} already in contacts book`
-      );
-    }
-
-    this.setState(({ contacts }) => {
-      const newContact = {
-        id: nanoid(),
-        ...data,
-      };
-
-      return {
-        contacts: [...contacts, newContact],
-      };
-    });
-  };
-
-  deleteСontact = id => {
-    this.setState(({ contacts }) => {
-      const newContact = contacts.filter(item => item.id !== id);
-
-      return {
-        contacts: newContact,
-      };
-    });
-  };
-
-  changeFilter = ({ target }) => {
-    this.setState({
-      filter: target.value,
-    });
-  };
-
-  getFilteredContacts() {
-    const { filter, contacts } = this.state;
-    if (!filter) {
-      return contacts;
-    }
-    const normalizedFilter = filter.toLowerCase();
-
-    const filteredContacts = contacts.filter(({ name, phone }) => {
-      const normalizedName = name.toLowerCase();
-      const normalizedPhone = phone.toLowerCase();
-
-      return (
-        normalizedName.includes(normalizedFilter) ||
-        normalizedPhone.includes(normalizedFilter)
-      );
-    });
-
-    return filteredContacts;
-  }
-
-  render() {
-    const { addСontact, deleteСontact, changeFilter } = this;
-
-    const contacts = this.getFilteredContacts();
-
-    return (
-      <div className={styles.wrapper}>
-        <h2>Phonebook</h2>
-        <PhoneBookForm onSubmit={addСontact} />
-        <h2>Contacts</h2>
-        <Filter changeFilter={changeFilter} />
-        <Contacts items={contacts} deleteContact={deleteСontact} />
-      </div>
-    );
-  }
-} */
 
 export default PhoneBook;

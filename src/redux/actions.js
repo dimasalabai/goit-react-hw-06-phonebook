@@ -1,0 +1,22 @@
+import { nanoid } from 'nanoid';
+
+import { ADD_CONTACT, DELETE_CONTACT } from './constants';
+
+export const addContact = payload => {
+  return {
+    //action
+
+    type: ADD_CONTACT,
+    payload: {
+      id: nanoid(),
+      ...payload,
+    },
+  };
+};
+
+export const deleteContact = payload => {
+  return {
+    type: DELETE_CONTACT,
+    payload,
+  };
+};
