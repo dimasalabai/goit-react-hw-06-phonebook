@@ -5,7 +5,12 @@ const Filter = ({ changeFilter }) => {
   return (
     <div className={styles.formGroup}>
       <label htmlFor={search}> Search contacts by name or phone</label>
-      <input id={search} name="filter" placeholder="Search" />
+      <input
+        id={search}
+        onChange={changeFilter}
+        name="filter"
+        placeholder="Search"
+      />
     </div>
   );
 };
