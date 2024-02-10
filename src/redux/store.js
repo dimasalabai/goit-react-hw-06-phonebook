@@ -1,9 +1,14 @@
-import { createStore } from 'redux';
-import { devToolsEnhancer } from '@redux-devtools/extension';
+import { configureStore } from '@reduxjs/toolkit';
+import { persistStore } from 'redux-persist';
 
-import rootReduser from './rootReduser';
+import persistedReducer from './rootReduser';
 
-const enhancer = devToolsEnhancer();
-const store = createStore(rootReduser, enhancer);
+export const store = configureStore({
+  reducer: persistedReducer,
+  middleware: getDefaultMiddleware =>
+    getDefaultMiddleware({
+      ignoredPaths: ['register'],
+    }),
+});
 
-export default store;
+export const persistor = persistStore(store);

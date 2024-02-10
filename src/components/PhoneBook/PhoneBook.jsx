@@ -5,11 +5,8 @@ import Filter from './Contacts/Filter/Filter';
 import Contacts from './Contacts/Contacts';
 
 import { getFilteredContacts } from '../../redux/contacts/contacts-selectors';
-import {
-  addContact,
-  deleteContact,
-} from '../../redux/contacts/contacts-action';
-import { setFilter } from '../../redux/filter/filter-actions';
+import { addContact, deleteContact } from '../../redux/contacts/contacts-slice';
+import { setFilter } from '../../redux/filter/filter-slice';
 
 import styles from './phone-book.module.css';
 
