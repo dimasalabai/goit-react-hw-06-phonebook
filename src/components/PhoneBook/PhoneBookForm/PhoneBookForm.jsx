@@ -1,5 +1,10 @@
 import { nanoid } from 'nanoid';
 import { useMemo, useState, memo, useCallback } from 'react';
+
+import { useSelector, useDispatch } from 'react-redux';
+import { getFilteredContacts } from '../../../redux/contacts/contacts-selectors';
+import { addContact } from '../../../redux/contacts/contacts-slice';
+
 import styles from './phone-book-form.module.css';
 
 const INITIAL_STATE = {
@@ -7,8 +12,48 @@ const INITIAL_STATE = {
   phone: '',
 };
 
-const PhoneBookForm = ({ onSubmit }) => {
+const PhoneBookForm = () => {
   const [state, setState] = useState({ ...INITIAL_STATE });
+
+  // ============================================
+  const contacts = useSelector(getFilteredContacts);
+
+  const dispatch = useDispatch();
+
+  const isDublicate = ({ name, phone }) => {
+    const normalizedName = name.toLowerCase();
+    const normalizedPhone = phone.toLowerCase();
+
+    const dublicate = contacts.find(item => {
+      const normalizedCurrentName = item.name.toLowerCase();
+      const normalizedCurrentPhone = item.phone.toLowerCase();
+
+      return (
+        normalizedCurrentName === normalizedName ||
+        normalizedCurrentPhone === normalizedPhone
+      );
+    });
+
+    return !!dublicate;
+  };
+
+  const onAddСontact = data => {
+    // data - state форми
+
+    if (isDublicate(data)) {
+      return alert(
+        `Contact with this ${
+          data.name || data.phone
+        } already in contacts book.\nCheck the entered data`
+      );
+    }
+
+    const action = addContact(data);
+    dispatch(action);
+
+    resetForm();
+  };
+  // ============================================
 
   const handleChange = useCallback(({ target }) => {
     const { name, value } = target;
@@ -18,10 +63,14 @@ const PhoneBookForm = ({ onSubmit }) => {
     }));
   }, []);
 
+  const resetForm = () => {
+    setState({ ...INITIAL_STATE });
+  };
+
   const handleSubmit = e => {
     e.preventDefault();
-    onSubmit({ ...state });
-    setState({ ...INITIAL_STATE });
+
+    onAddСontact({ ...state });
   };
 
   const contactsName = useMemo(() => nanoid(), []);

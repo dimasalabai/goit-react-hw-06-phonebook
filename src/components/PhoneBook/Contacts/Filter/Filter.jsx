@@ -1,7 +1,16 @@
-import styles from './filter.module.css';
+import { useDispatch } from 'react-redux';
+
 import { nanoid } from 'nanoid';
-const Filter = ({ changeFilter }) => {
+
+import { setFilter } from '../../../../redux/filter/filter-slice';
+
+import styles from './filter.module.css';
+
+const Filter = () => {
   const search = nanoid();
+  const dispatch = useDispatch();
+  const changeFilter = ({ target }) => dispatch(setFilter(target.value));
+
   return (
     <div className={styles.formGroup}>
       <label htmlFor={search}> Search contacts by name or phone</label>
